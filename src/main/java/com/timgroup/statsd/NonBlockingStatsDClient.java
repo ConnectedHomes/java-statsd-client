@@ -2,7 +2,9 @@ package com.timgroup.statsd;
 
 import java.nio.charset.Charset;
 import java.text.NumberFormat;
+import java.util.Iterator;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * A simple StatsD client implementation facilitating metrics recording.
@@ -191,6 +193,35 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
     @Override
     public void recordExecutionTime(String aspect, long timeInMs, double sampleRate) {
         send(messageFor(aspect, Long.toString(timeInMs), "ms", sampleRate));
+    }
+
+    @Override
+    public void recordExecutionTime(String aspect, long timeInMs, Map<String, String> tags) {
+        send(messageFor(aspect, Long.toString(timeInMs), "ms", tags));
+    }
+
+    private String messageFor(String aspect, String value, String type, Map<String, String> tags) {
+        StringBuilder sb = new StringBuilder(prefix + aspect + ':' + value + '|' + type + "|@" + stringValueOf(1.0));
+
+        Iterator<Map.Entry<String, String>> iterator = tags.entrySet().iterator();
+        if(iterator.hasNext()) {
+            sb.append("|#");
+            appendKVP(sb, iterator);
+        }
+
+        while(iterator.hasNext()) {
+            sb.append(",");
+            appendKVP(sb, iterator);
+        }
+
+        return sb.toString();
+    }
+
+    private void appendKVP(StringBuilder sb, Iterator<Map.Entry<String, String>> iterator) {
+        Map.Entry<String, String> next = iterator.next();
+        sb.append(next.getKey());
+        sb.append(":");
+        sb.append(next.getValue());
     }
 
     private String messageFor(String aspect, String value, String type) {

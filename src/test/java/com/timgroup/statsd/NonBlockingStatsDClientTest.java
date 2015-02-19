@@ -11,7 +11,9 @@ import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -142,6 +144,25 @@ public final class NonBlockingStatsDClientTest {
         server.waitForMessage();
         
         assertThat(server.messagesReceived(), contains("my.prefix.mytime:123|ms"));
+    }
+
+    @Test(timeout=5000L) public void
+    sends_timer_to_statsd_with_tags() throws Exception {
+        Map<String,String> tags = new HashMap<String,String>();
+        tags.put("tag_name1","tag_value_1");
+        tags.put("tag_name2","tag_value_2");
+        client.recordExecutionTime("mytime", 123L, tags);
+        server.waitForMessage();
+
+        assertThat(server.messagesReceived(), contains("my.prefix.mytime:123|ms|@1|#tag_name2:tag_value_2,tag_name1:tag_value_1"));
+    }
+
+    @Test(timeout=5000L) public void
+    sends_timer_to_statsd_with_empty_tags() throws Exception {
+        client.recordExecutionTime("mytime", 123L, new HashMap<String,String>());
+        server.waitForMessage();
+
+        assertThat(server.messagesReceived(), contains("my.prefix.mytime:123|ms|@1"));
     }
 
     @Test(timeout=5000L) public void

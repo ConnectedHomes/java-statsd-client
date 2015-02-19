@@ -1,5 +1,7 @@
 package com.timgroup.statsd;
 
+import java.util.Map;
+
 /**
  * Describes a client connection to a StatsD server, which may be used to post metrics
  * in the form of counters, timers, and gauges.
@@ -169,6 +171,20 @@ public interface StatsDClient {
      *     sampled every 1/10th of the time, so that it updates its timer_counters appropriately.
      */
     void recordExecutionTime(String aspect, long timeInMs, double sampleRate);
+
+    /**
+     * Adjusts the specified counter by a given delta.
+     *
+     * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
+     *
+     * @param aspect
+     *     the name of the counter to adjust
+     * @param timeInMs
+     *     the amount to adjust the counter by
+     * @param tags
+     *     tags to be sent to statsd
+     */
+    void recordExecutionTime(String aspect, long timeInMs, Map<String, String> tags);
 
     /**
      * Records an execution time in milliseconds for the specified named operation. The execution

@@ -1,5 +1,7 @@
 package com.timgroup.statsd;
 
+import java.util.Map;
+
 /**
  * A No-Op StatsDClient, which can be substituted in when metrics are not
  * required.
@@ -16,4 +18,5 @@ public final class NoOpStatsDClient extends ConvenienceMethodProvidingStatsDClie
     @Override public void recordGaugeDelta(String aspect, double delta) { }
     @Override public void recordSetEvent(String aspect, String value) { }
     @Override public void recordExecutionTime(String aspect, long timeInMs, double sampleRate) { }
+    @Override public void recordExecutionTime(String aspect, long timeInMs, Map<String, String> tags) {}
 }
